@@ -1,0 +1,3 @@
+Corta
+Esta es una línea algo más larga
+Y una mucho más larga que excede BUFFER_SIZE
