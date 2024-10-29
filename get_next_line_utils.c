@@ -6,7 +6,7 @@
 /*   By: rexposit <rexposit@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 18:09:00 by rexposit          #+#    #+#             */
-/*   Updated: 2024/10/25 20:46:18 by rexposit         ###   ########.fr       */
+/*   Updated: 2024/10/29 11:40:28 by rexposit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	ptr = malloc(len + 1);
 	if (ptr == NULL)
 		return (NULL);
-	ft_memmove(ptr, s + start, len);
+	ft_strlcpy(ptr, s + start, len);
 	ptr[len] = '\0';
 	return (ptr);
 }
