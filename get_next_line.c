@@ -6,36 +6,56 @@
 /*   By: rexposit <rexposit@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 18:21:59 by rexposit          #+#    #+#             */
-/*   Updated: 2024/10/29 19:11:42 by rexposit         ###   ########.fr       */
+/*   Updated: 2024/11/04 15:36:13 by rexposit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*extract_line(char *fd_unread)
+static char	*extract_line_and_update(char **fd_unread)
 {
 	char	*line;
-	char	*newline_pos = ft_strchr(fd_unread, '\n');
+	char	*newline_pos;
+	char	*temp;
 
+	if (!*fd_unread)
+		return (NULL);
+	newline_pos = ft_strchr(*fd_unread, '\n');
 	if (newline_pos)
-		line = ft_substr(fd_unread, 0, newline_pos - fd_unread + 1); // Incluye '\n'
+		line = ft_substr(*fd_unread, 0, newline_pos - *fd_unread + 1);
 	else
-		line = ft_substr(fd_unread, 0, ft_strlen(fd_unread)); // Última línea sin '\n'
+		line = ft_substr(*fd_unread, 0, ft_strlen(*fd_unread));
+	if (line && ft_strlen(line) < ft_strlen(*fd_unread))
+	{
+		temp = *fd_unread;
+		*fd_unread = ft_substr(*fd_unread, ft_strlen(line),
+				ft_strlen(*fd_unread) - ft_strlen(line));
+		free(temp);
+	}
+	else
+	{
+		free(*fd_unread);
+		*fd_unread = NULL;
+	}
 	return (line);
 }
 
-char	*get_next_line(int fd)
+static char	*read_append(int fd, char *fd_unread, ssize_t byts_rd, char *temp)
 {
-	static char	*fd_unread;
-	char		fd_read[BUFFER_SIZE + 1];
-	ssize_t		bytes_read;
-	char		*temp;
-	char		*line;
+	char	fd_read[BUFFER_SIZE + 1];
 
-	while ((bytes_read = read(fd, fd_read, BUFFER_SIZE)) > 0)
+	while (1)
 	{
-		fd_read[bytes_read] = '\0';
-		if (fd_unread == NULL)
+		byts_rd = read(fd, fd_read, BUFFER_SIZE);
+		if (byts_rd < 0)
+		{
+			free(fd_unread);
+			return (NULL);
+		}
+		if (byts_rd == 0)
+			break ;
+		fd_read[byts_rd] = '\0';
+		if (!fd_unread)
 			fd_unread = ft_substr(fd_read, 0, ft_strlen(fd_read));
 		else
 		{
@@ -44,27 +64,24 @@ char	*get_next_line(int fd)
 			free(temp);
 		}
 		if (ft_strchr(fd_unread, '\n'))
-			break;
+			break ;
 	}
-	if (bytes_read < 0 || (bytes_read == 0 && (!fd_unread || fd_unread[0] == '\0')))
+	return (fd_unread);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*fd_unread;
+	char		*line;
+
+	fd_unread = read_append(fd, fd_unread, 0, 0);
+	if (!fd_unread || (read(fd, NULL, 0) == 0
+			&& (!fd_unread || fd_unread[0] == '\0')))
 	{
 		free(fd_unread);
 		fd_unread = NULL;
 		return (NULL);
 	}
-	// Extraer la línea desde fd_unread
-	line = extract_line(fd_unread);
-	// Actualizar fd_unread para la próxima llamada
-	if (line && ft_strlen(line) < ft_strlen(fd_unread))
-	{
-		temp = fd_unread;
-		fd_unread = ft_substr(fd_unread, ft_strlen(line), ft_strlen(fd_unread) - ft_strlen(line));
-		free(temp);
-	}
-	else
-	{
-		free(fd_unread);
-		fd_unread = NULL;
-	}
+	line = extract_line_and_update(&fd_unread);
 	return (line);
 }
