@@ -6,7 +6,7 @@
 /*   By: rexposit <rexposit@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 18:09:36 by rexposit          #+#    #+#             */
-/*   Updated: 2024/10/25 21:06:47 by rexposit         ###   ########.fr       */
+/*   Updated: 2024/11/04 14:33:51 by rexposit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 # endif
 
 # ifndef BUFFER_SIZE
-# define BUFFER_SIZE BUFSIZ
+#  define BUFFER_SIZE BUFSIZ
 # endif
 
 # if BUFFER_SIZE > 1000000
