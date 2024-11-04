@@ -6,7 +6,7 @@
 /*   By: rexposit <rexposit@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 18:21:59 by rexposit          #+#    #+#             */
-/*   Updated: 2024/11/04 15:36:13 by rexposit         ###   ########.fr       */
+/*   Updated: 2024/11/04 15:51:42 by rexposit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,16 +72,15 @@ static char	*read_append(int fd, char *fd_unread, ssize_t byts_rd, char *temp)
 char	*get_next_line(int fd)
 {
 	static char	*fd_unread;
-	char		*line;
 
+	if (fd < 0 || fd > FD_MAX || BUFFER_SIZE <= 0)
+		return (NULL);
 	fd_unread = read_append(fd, fd_unread, 0, 0);
-	if (!fd_unread || (read(fd, NULL, 0) == 0
-			&& (!fd_unread || fd_unread[0] == '\0')))
+	if (!fd_unread || fd_unread[0] == '\0')
 	{
 		free(fd_unread);
 		fd_unread = NULL;
 		return (NULL);
 	}
-	line = extract_line_and_update(&fd_unread);
-	return (line);
+	return (extract_line_and_update(&fd_unread));
 }
