@@ -6,7 +6,7 @@
 /*   By: rexposit <rexposit@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 18:21:59 by rexposit          #+#    #+#             */
-/*   Updated: 2024/11/04 15:51:42 by rexposit         ###   ########.fr       */
+/*   Updated: 2024/11/06 12:57:28 by rexposit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,42 +40,59 @@ static char	*extract_line_and_update(char **fd_unread)
 	return (line);
 }
 
-static char	*read_append(int fd, char *fd_unread, ssize_t byts_rd, char *temp)
+static char	*read_and_append(int fd, char *fd_unread, char *fd_read)
 {
-	char	fd_read[BUFFER_SIZE + 1];
+	ssize_t	byts_rd;
+	char	*temp;
 
+	byts_rd = read(fd, fd_read, BUFFER_SIZE);
+	if (byts_rd < 0)
+	{
+		free(fd_read);
+		free(fd_unread);
+		return (NULL);
+	}
+	fd_read[byts_rd] = '\0';
+	if (!fd_unread)
+		fd_unread = ft_substr(fd_read, 0, ft_strlen(fd_read));
+	else
+	{
+		temp = fd_unread;
+		fd_unread = ft_strjoin(fd_unread, fd_read);
+		free(temp);
+	}
+	return (fd_unread);
+}
+
+static char	*read_until_line(int fd, char *fd_unread, char *fd_read)
+{
 	while (1)
 	{
-		byts_rd = read(fd, fd_read, BUFFER_SIZE);
-		if (byts_rd < 0)
-		{
-			free(fd_unread);
-			return (NULL);
-		}
-		if (byts_rd == 0)
-			break ;
-		fd_read[byts_rd] = '\0';
+		fd_unread = read_and_append(fd, fd_unread, fd_read);
 		if (!fd_unread)
-			fd_unread = ft_substr(fd_read, 0, ft_strlen(fd_read));
-		else
-		{
-			temp = fd_unread;
-			fd_unread = ft_strjoin(fd_unread, fd_read);
-			free(temp);
-		}
+			return (NULL);
+		if (fd_read[0] == '\0')
+			break ;
 		if (ft_strchr(fd_unread, '\n'))
 			break ;
 	}
+	free(fd_read);
 	return (fd_unread);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*fd_unread;
+	char		*fd_read;
 
-	if (fd < 0 || fd > FD_MAX || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	fd_unread = read_append(fd, fd_unread, 0, 0);
+	fd_read = malloc(BUFFER_SIZE + 1 * sizeof(char));
+	if (!fd_read)
+		return (NULL);
+	if (BUFFER_SIZE <= 0)
+		return (NULL);
+	fd_unread = read_until_line(fd, fd_unread, fd_read);
 	if (!fd_unread || fd_unread[0] == '\0')
 	{
 		free(fd_unread);
