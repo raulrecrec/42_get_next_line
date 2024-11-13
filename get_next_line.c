@@ -6,7 +6,7 @@
 /*   By: rexposit <rexposit@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 18:21:59 by rexposit          #+#    #+#             */
-/*   Updated: 2024/11/06 12:57:28 by rexposit         ###   ########.fr       */
+/*   Updated: 2024/11/13 13:20:21 by rexposit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,6 @@ char	*get_next_line(int fd)
 		return (NULL);
 	fd_read = malloc(BUFFER_SIZE + 1 * sizeof(char));
 	if (!fd_read)
-		return (NULL);
-	if (BUFFER_SIZE <= 0)
 		return (NULL);
 	fd_unread = read_until_line(fd, fd_unread, fd_read);
 	if (!fd_unread || fd_unread[0] == '\0')
